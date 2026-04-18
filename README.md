@@ -30,12 +30,16 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
     composer install
     ```
 
-3.  **Configuration**
-    -   Créez une base de données MySQL.
-    -   Importez le fichier `db.sql` pour créer la structure.
-    -   Configurez vos accès dans `config.php`.
+3.  **Base de données**
+    Créez une base de données MySQL et importez le schéma fourni :
+    ```bash
+    mysql -u votre_utilisateur -p votre_base_de_donnees < db.sql
+    ```
 
-4.  **Lancer le projet**
+4.  **Configuration**
+    Configurez vos accès à la base de données dans le fichier `config.php`.
+
+5.  **Lancer le projet**
     Vous pouvez utiliser le serveur interne de PHP :
     ```bash
     php -S localhost:8000 -t public
@@ -52,6 +56,7 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
 -   `public/` : Point d'entrée de l'application (index.php) et fichiers statiques (CSS, JS, Images).
 -   `src/Views/` : Fichiers templates Twig.
 -   `config.php` : Fichier de configuration globale.
+-   `db.sql` : Script de création de la base de données.
 
 ## 🤝 Contribution
 

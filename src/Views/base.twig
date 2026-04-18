@@ -63,10 +63,13 @@
 
 <footer class="py-5 border-top">
     <div class="container text-center">
-        <p class="text-muted mb-0">&copy; 2026 - Démo de [Nom du Repo]</p>
+        <p class="text-muted mb-0">
+            &copy; {{ "now"|date("Y") }} - PHP Starter Kit
+            <small class="text-secondary ms-2">(v{{ app_version }})</small>
+        </p>
         <div class="mt-3">
             <a href="https://fr.linkedin.com/in/mendel-bellaiche-4a3116175" class="text-dark mx-2" target="_blank"><i class="fab fa-linkedin fa-lg"></i></a>
-            <a href="#" class="text-dark mx-2"><i class="fab fa-github fa-lg"></i></a>
+            <a href="https://github.com/mendelbellaiche/php_starterkit" target="_blank" class="text-dark mx-2"><i class="fab fa-github fa-lg"></i></a>
         </div>
     </div>
 </footer>

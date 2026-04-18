@@ -22,13 +22,17 @@ abstract class Controller
             'cache' => false,
         ]);
 
-        // 3. MAINTENANT, on peut ajouter la variable globale
-        // Car $this->twig n'est plus null !
+        // 3. Variables globales
         $this->twig->addGlobal('user', $_SESSION['user_name'] ?? null);
 
         // SYSTÈME DE FLASH : On injecte les messages et on les vide de la session
         $this->twig->addGlobal('flashes', $_SESSION['flashes'] ?? []);
         unset($_SESSION['flashes']);
+
+        // VERSION : Lecture du fichier VERSION à la racine
+        $versionPath = __DIR__ . '/../../VERSION';
+        $version = file_exists($versionPath) ? trim(file_get_contents($versionPath)) : '0.0.0';
+        $this->twig->addGlobal('app_version', $version);
     }
 
     /**

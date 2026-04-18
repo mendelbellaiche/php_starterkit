@@ -1,0 +1,14 @@
+{% extends "base.twig" %}
+
+{% block title %}Connexion - Website{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/home.css" />
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="mb-4">Bienvenue sur votre tableau de bord, {{ user }} !</h1>
+        <p class="lead mb-5">Voici un aperçu de vos activités récentes et des statistiques clés.</p>
+    </div>
+{% endblock %}

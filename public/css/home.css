@@ -1,0 +1,23 @@
+
+.hero-section {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+    color: white;
+    padding: 100px 0;
+    clip-path: ellipse(150% 100% at 50% 0%);
+}
+.feature-card {
+    border: none;
+    transition: transform 0.3s ease;
+    border-radius: 15px;
+}
+.feature-card:hover { transform: translateY(-5px); }
+.code-block {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+}
+.btn-primary { background-color: var(--accent-color); border: none; }
+footer { background: white; }

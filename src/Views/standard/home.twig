@@ -1,0 +1,76 @@
+{% extends "base.twig" %}
+
+{% block title %}Connexion - Website{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/home.css" />
+{% endblock %}
+
+{% block body %}
+
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-3">Une solution élégante pour [Votre Problème]</h1>
+            <p class="lead mb-5 opacity-75">Open-source, performant et prêt pour la production.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#demo" class="btn btn-primary btn-lg px-5 rounded-pill">Voir la démo</a>
+                <a href="#install" class="btn btn-outline-light btn-lg px-5 rounded-pill">Installation</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="row g-4 py-5">
+            <div class="col-md-4">
+                <div class="card feature-card h-100 shadow-sm p-4 text-center">
+                    <div class="text-primary mb-3"><i class="fas fa-bolt fa-3x"></i></div>
+                    <h3 class="h5 fw-bold">Performance</h3>
+                    <p class="text-muted small">Optimisé pour des temps de réponse records et une empreinte légère.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 shadow-sm p-4 text-center">
+                    <div class="text-primary mb-3"><i class="fas fa-shield-alt fa-3x"></i></div>
+                    <h3 class="h5 fw-bold">Sécurisé</h3>
+                    <p class="text-muted small">Protection intégrée contre les failles communes (XSS, CSRF, Injection).</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 shadow-sm p-4 text-center">
+                    <div class="text-primary mb-3"><i class="fas fa-cogs fa-3x"></i></div>
+                    <h3 class="h5 fw-bold">Customisable</h3>
+                    <p class="text-muted small">Une API flexible conçue pour s'adapter à vos besoins spécifiques.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="install" class="bg-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="fw-bold">Démarrage rapide</h2>
+                    <p class="text-muted">Lancez le projet en moins de 2 minutes avec ces commandes simples.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Architecture propre</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Documentation complète</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Tests automatisés inclus</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="code-block shadow-lg">
+                        <small class="text-secondary d-block mb-2"># Cloner et lancer</small>
+                        <code>git clone https://github.com/user/repo.git</code><br>
+                        <code>cd repo</code><br>
+                        <code>composer init && composer update</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5" id="demo">
+
+    </div>
+
+{% endblock %}

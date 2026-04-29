@@ -3,8 +3,9 @@
 namespace StarterKit\Controllers;
 
 use StarterKit\Core\Attributes\Route;
+use StarterKit\Core\AbstractController;
 
-class HomeController extends Controller
+class HomeController extends AbstractController
 {
     /**
      * Affiche la page d'accueil

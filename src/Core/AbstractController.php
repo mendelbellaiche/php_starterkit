@@ -1,11 +1,11 @@
 <?php
 
-namespace StarterKit\Controllers;
+namespace StarterKit\Core;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-abstract class Controller
+abstract class AbstractController
 {
     private $twig;
 
@@ -33,6 +33,8 @@ abstract class Controller
         $versionPath = __DIR__ . '/../../VERSION';
         $version = file_exists($versionPath) ? trim(file_get_contents($versionPath)) : '0.0.0';
         $this->twig->addGlobal('app_version', $version);
+
+        $this->twig->addGlobal('csrf_token', CsrfHelper::getToken());
     }
 
     /**

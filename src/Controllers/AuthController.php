@@ -2,11 +2,14 @@
 
 namespace StarterKit\Controllers;
 
-use StarterKit\Controllers\Controller;
+use Random\RandomException;
 use StarterKit\Core\Attributes\Route;
+use StarterKit\Core\AuthThrottle;
+use StarterKit\Core\AbstractController;
+use StarterKit\Core\CsrfHelper;
 use StarterKit\Models\User;
 
-class AuthController extends Controller
+class AuthController extends AbstractController
 {
 
     /**
@@ -35,30 +38,69 @@ class AuthController extends Controller
     {
         $this->redirectIfLoggedIn();
 
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-
-        // 1. On cherche l'utilisateur (instance de User)
-        $user = User::findByEmail($email);
-
-        // 2. On vérifie si l'utilisateur existe et si le mot de passe est bon
-        if ($user && password_verify($password, $user->getPassword())) {
-
-            // 3. On ouvre la session PHP
-            session_start();
-            $_SESSION['user_id'] = $user->getId();
-            $_SESSION['user_name'] = $user->getName();
-
-            $this->addFlash('success', 'Ravi de vous revoir, ' . $user->getName() . ' !');
-
-            // Redirection vers le dashboard
-            header('Location: /dashboard');
+        // Validation CSRF
+        if (!CsrfHelper::validate($_POST['_csrf_token'] ?? null)) {
+            $this->addFlash('error', 'Requête invalide. Veuillez réessayer.');
+            header('Location: /login');
             exit;
-        } else {
+        }
+
+        $email    = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $ip       = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        $throttle = new AuthThrottle();
+
+        // 1. Vérifier d'abord le blocage global par IP
+        if ($throttle->isIpBlocked($ip)) {
+            usleep(random_int(300000, 500000));
             $this->addFlash('error', 'Identifiants incorrects.');
             header('Location: /login');
             exit;
         }
+
+        // 2. Vérifier ensuite le blocage par couple email+IP
+        if ($throttle->isBlocked($email, $ip)) {
+            usleep(random_int(300000, 500000));
+            $this->addFlash('error', 'Identifiants incorrects.');
+            header('Location: /login');
+            exit;
+        }
+
+        // 3. On cherche l'utilisateur (instance de User)
+        $user = User::findByEmail($email);
+
+        // 4. On vérifie si l'utilisateur existe et si le mot de passe est bon
+        if ($user && password_verify($password, $user->getPassword())) {
+
+            $throttle->clear($email, $ip);
+            $throttle->clearIp($ip);
+
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // anti session fixation
+            session_regenerate_id(true);
+
+            $_SESSION['user_id']   = $user->getId();
+            $_SESSION['user_name'] = $user->getName();
+
+            $this->addFlash('success', 'Ravi de vous revoir, ' . $user->getName() . ' !');
+            header('Location: /dashboard');
+            exit;
+        }
+
+        $throttle->registerFailure($email, $ip);
+        $throttle->registerIpFailure($ip);
+        try {
+            usleep(random_int(300000, 500000));
+        } catch (RandomException $e) {
+            // TODO: logger l'erreur
+        }
+        $this->addFlash('error', 'Identifiants incorrects.');
+        header('Location: /login');
+        exit;
     }
 
     #[Route('/register', method: 'GET')]
@@ -76,10 +118,17 @@ class AuthController extends Controller
     {
         $this->redirectIfLoggedIn();
 
+        // Validation CSRF
+        if (!CsrfHelper::validate($_POST['_csrf_token'] ?? null)) {
+            $this->addFlash('error', 'Requête invalide. Veuillez réessayer.');
+            header('Location: /register');
+            exit;
+        }
+
         // 1. Récupération des données
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $name            = $_POST['name'] ?? '';
+        $email           = $_POST['email'] ?? '';
+        $password        = $_POST['password'] ?? '';
         $passwordConfirm = $_POST['password_confirm'] ?? '';
 
         // 2. Validations de base
@@ -97,7 +146,7 @@ class AuthController extends Controller
 
         // 3. Vérifier si l'email existe déjà
         if (User::findByEmail($email)) {
-            $this->addFlash('error', 'Cet email est déjà utilisé.');
+            $this->addFlash('error', 'Identifiant incorrects.');
             header('Location: /register');
             return;
         }
@@ -106,43 +155,51 @@ class AuthController extends Controller
         $user = new User();
         $user->setName($name)
             ->setEmail($email)
-            ->setPassword($password); // Le hachage est automatique dans le setter
+            ->setPassword($password);
 
         // 5. Sauvegarde en base de données
         if ($user->save()) {
-            // Optionnel : Connecter l'utilisateur immédiatement après l'inscription
-            if (session_status() === PHP_SESSION_NONE) session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
 
-            // On récupère l'ID généré pour le mettre en session (il faut rafraîchir l'objet ou le chercher)
-            $loggedUser = User::findByEmail($email);
-            // Pour la session, on récupère via le getter
-            $_SESSION['user_id'] = $user->getId();
+            session_regenerate_id(true);
+
+            $_SESSION['user_id']   = $user->getId();
             $_SESSION['user_name'] = $user->getName();
 
-            // Redirection vers le dashboard
             header('Location: /dashboard');
             exit;
         } else {
-
             $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription.');
         }
     }
 
-    #[Route('/logout', method: 'GET')]
+    #[Route('/logout', method: 'POST')]
     public function logout()
     {
-        // 1. On s'assure que la session est démarrée pour pouvoir la manipuler
+        // Validation CSRF
+        if (!CsrfHelper::validate($_POST['_csrf_token'] ?? null)) {
+            header('Location: /');
+            exit;
+        }
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // 2. On vide toutes les variables de session
         $_SESSION = [];
 
-        // 3. On détruit physiquement la session sur le serveur
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params['path'], $params['domain'],
+                $params['secure'], $params['httponly']
+            );
+        }
+
         session_destroy();
 
-        // 4. Redirection vers la page d'accueil (Landing Page)
         header('Location: /');
         exit;
     }

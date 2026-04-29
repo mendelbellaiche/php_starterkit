@@ -23,6 +23,34 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || abort "commande requise introuvable: $1"
 }
 
+has_php_module() {
+  local php_bin="$1"
+  local module="$2"
+  "$php_bin" -m | grep -qi "^${module}$"
+}
+
+repair_pdo_mysql() {
+  local version="$1"
+  local pdo_so=""
+
+  echo "Tentative de reparation de pdo_mysql pour PHP ${version}..."
+
+  sudo apt-get install --reinstall -y "php${version}-mysql" \
+    || sudo apt-get install --reinstall -y php-mysql \
+    || true
+
+  if command -v phpenmod >/dev/null 2>&1; then
+    sudo phpenmod -v "$version" -s cli pdo pdo_mysql || true
+  fi
+
+  # Certains environnements ont le .so present mais pas le fichier ini CLI
+  pdo_so="$(find /usr/lib/php -name pdo_mysql.so 2>/dev/null | head -n 1 || true)"
+  if [[ -n "$pdo_so" && ! -f "/etc/php/${version}/mods-available/pdo_mysql.ini" ]]; then
+    echo "extension=pdo_mysql" | sudo tee "/etc/php/${version}/mods-available/pdo_mysql.ini" >/dev/null
+    command -v phpenmod >/dev/null 2>&1 && sudo phpenmod -v "$version" -s cli pdo_mysql || true
+  fi
+}
+
 PHP_VERSION=""
 
 while [[ $# -gt 0 ]]; do
@@ -108,21 +136,20 @@ if ! command -v "$PHP_BIN" >/dev/null 2>&1; then
   abort "binaire introuvable: $PHP_BIN"
 fi
 
-if ! "$PHP_BIN" -m | grep -q '^PDO$'; then
+if ! has_php_module "$PHP_BIN" "PDO"; then
   abort "PDO n'est pas active pour $PHP_BIN"
 fi
 
-if ! "$PHP_BIN" -m | grep -q '^pdo_mysql$'; then
+if ! has_php_module "$PHP_BIN" "pdo_mysql"; then
   echo "pdo_mysql non detectee, tentative d'activation..."
-  if command -v phpenmod >/dev/null 2>&1; then
-    sudo phpenmod -v "$PHP_VERSION" pdo pdo_mysql || true
-  fi
+  repair_pdo_mysql "$PHP_VERSION"
 fi
 
-if ! "$PHP_BIN" -m | grep -q '^pdo_mysql$'; then
+if ! has_php_module "$PHP_BIN" "pdo_mysql"; then
   echo "Diagnostic extensions PHP pour $PHP_BIN:"
   "$PHP_BIN" --ini | sed 's/^/  /'
   "$PHP_BIN" -m | grep -Ei 'pdo|mysql' | sed 's/^/  /' || true
+  dpkg -l | grep -E "php${PHP_VERSION}-(mysql|cli|common)|php-mysql" | sed 's/^/  /' || true
   abort "pdo_mysql n'est pas active pour $PHP_BIN. Verifiez les paquets php${PHP_VERSION}-mysql / php-mysql"
 fi
 

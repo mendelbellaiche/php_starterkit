@@ -1,3 +1,5 @@
+
+
 -- 1. Suppression des tables si elles existent (pour repartir de zéro si besoin)
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS users;

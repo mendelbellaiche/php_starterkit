@@ -10,8 +10,11 @@ read -p "Entrez le nom de la base de données : " DB_NAME
 echo "Suppression (si existante) et création de la base de données $DB_NAME..."
 mysql -u "$MYSQL_USER" -p -e "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\`;"
 
-# Lance le fichier init_tables.sql
+# Lance le fichier init_tables.sql en forçant la base cible via USE
 echo "Initialisation des tables à partir de init_tables.sql..."
-mysql -u "$MYSQL_USER" -p "$DB_NAME" < "$(dirname "$0")/init_tables.sql"
+{
+  echo "USE \`$DB_NAME\`;"
+  cat "$(dirname "$0")/init_tables.sql"
+} | mysql -u "$MYSQL_USER" -p
 
 echo "Terminé !"

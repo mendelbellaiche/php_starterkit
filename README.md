@@ -58,6 +58,31 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
 -   `config.php` : Fichier de configuration globale.
 -   `init_tables.sql` : Script de création de la base de données.
 
+## Déploiement
+
+Il faut d'abord installer PHP, MySQL et créer un user MySQL:
+
+```
+cd scripts
+./install_php_and_bdd.sh
+./create_mysql_user.sh 
+```
+
+Il faut installer composer et le lancer:
+
+```
+apt install composer
+apt install
+```
+
+Ensuite, changez les droits du projets web:
+
+```
+sudo chown -R www-data:www-data /path/to/site
+```
+
+Enfin, changer les credentials dans configs.php
+
 ## 🤝 Contribution
 
 Les contributions sont les bienvenues ! Consultez le fichier [CONTRIBUTING.md](CONTRIBUTING.md) pour plus de détails.

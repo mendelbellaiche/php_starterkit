@@ -63,7 +63,7 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
 Il faut d'abord installer PHP, MySQL et créer un user MySQL:
 
 ```
-cd scripts
+cd /path/to/project/scripts
 ./install_php_and_bdd.sh
 ./create_mysql_user.sh 
 ```
@@ -73,6 +73,12 @@ Il faut installer composer et le lancer:
 ```
 apt install composer
 composer install
+```
+
+Déplacer ensuite le projet:
+
+```
+mv php_starterkit /path/to/site
 ```
 
 Ensuite, changez les droits du projets web:

@@ -72,7 +72,7 @@ Il faut installer composer et le lancer:
 
 ```
 apt install composer
-apt install
+composer install
 ```
 
 Ensuite, changez les droits du projets web:

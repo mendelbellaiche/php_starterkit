@@ -84,6 +84,10 @@ sudo apt-get install -y \
   "php${PHP_VERSION}" \
   "php${PHP_VERSION}-cli" \
   "php${PHP_VERSION}-common" \
+  "php${PHP_VERSION}-intl" \
+  "php${PHP_VERSION}-xml" \
+  "php${PHP_VERSION}-mbstring" \
+  "php${PHP_VERSION}-curl" \
   mysql-server
 
 echo "Installation du package MySQL pour PHP ${PHP_VERSION}..."

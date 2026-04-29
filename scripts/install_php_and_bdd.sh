@@ -84,8 +84,13 @@ sudo apt-get install -y \
   "php${PHP_VERSION}" \
   "php${PHP_VERSION}-cli" \
   "php${PHP_VERSION}-common" \
-  "php${PHP_VERSION}-mysql" \
   mysql-server
+
+echo "Installation du package MySQL pour PHP ${PHP_VERSION}..."
+if ! sudo apt-get install -y "php${PHP_VERSION}-mysql"; then
+  echo "Package php${PHP_VERSION}-mysql indisponible, tentative avec php-mysql..."
+  sudo apt-get install -y php-mysql
+fi
 
 if [[ -x "/usr/bin/php${PHP_VERSION}" ]]; then
   sudo update-alternatives --set php "/usr/bin/php${PHP_VERSION}" || true
@@ -104,7 +109,17 @@ if ! "$PHP_BIN" -m | grep -q '^PDO$'; then
 fi
 
 if ! "$PHP_BIN" -m | grep -q '^pdo_mysql$'; then
-  abort "pdo_mysql n'est pas active pour $PHP_BIN"
+  echo "pdo_mysql non detectee, tentative d'activation..."
+  if command -v phpenmod >/dev/null 2>&1; then
+    sudo phpenmod -v "$PHP_VERSION" pdo pdo_mysql || true
+  fi
+fi
+
+if ! "$PHP_BIN" -m | grep -q '^pdo_mysql$'; then
+  echo "Diagnostic extensions PHP pour $PHP_BIN:"
+  "$PHP_BIN" --ini | sed 's/^/  /'
+  "$PHP_BIN" -m | grep -Ei 'pdo|mysql' | sed 's/^/  /' || true
+  abort "pdo_mysql n'est pas active pour $PHP_BIN. Verifiez les paquets php${PHP_VERSION}-mysql / php-mysql"
 fi
 
 echo ""

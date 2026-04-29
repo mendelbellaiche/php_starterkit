@@ -1,9 +1,9 @@
 <?php
 
-namespace StarterKit\Controllers;
+namespace Controllers;
 
-use StarterKit\Core\Attributes\Route;
-use StarterKit\Core\AbstractController;
+use Core\Attributes\Route;
+use Core\AbstractController;
 
 class HomeController extends AbstractController
 {

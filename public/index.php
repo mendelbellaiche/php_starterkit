@@ -33,18 +33,18 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-use StarterKit\Core\Router;
+use Core\Router;
 
 // Charger la config
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$router = new StarterKit\Core\Router();
+$router = new Core\Router();
 
 // On enregistre les contrôleurs (on pourrait même automatiser le scan du dossier)
 $router->registerControllers([
-    StarterKit\Controllers\AuthController::class,
-    StarterKit\Controllers\HomeController::class,
+    Controllers\AuthController::class,
+    Controllers\HomeController::class,
 ]);
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

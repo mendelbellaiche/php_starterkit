@@ -1,6 +1,6 @@
 <?php
 
-namespace StarterKit\Core\Attributes;
+namespace Core\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD)] // On indique que cet attribut ne va que sur des fonctions
 class Route

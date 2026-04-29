@@ -1,6 +1,6 @@
 <?php
 
-namespace StarterKit\Core;
+namespace Core;
 
 class CsrfHelper
 {

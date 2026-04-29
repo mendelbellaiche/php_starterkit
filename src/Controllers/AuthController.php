@@ -1,13 +1,13 @@
 <?php
 
-namespace StarterKit\Controllers;
+namespace Controllers;
 
 use Random\RandomException;
-use StarterKit\Core\Attributes\Route;
-use StarterKit\Core\AuthThrottle;
-use StarterKit\Core\AbstractController;
-use StarterKit\Core\CsrfHelper;
-use StarterKit\Models\User;
+use Core\Attributes\Route;
+use Core\AuthThrottle;
+use Core\AbstractController;
+use Core\CsrfHelper;
+use Models\User;
 
 class AuthController extends AbstractController
 {

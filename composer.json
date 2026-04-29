@@ -1,9 +1,9 @@
 {
-  "name": "mendelbellaiche/anki-app",
+  "name": "mendelbellaiche/starterkit",
   "type": "project",
   "autoload": {
     "psr-4": {
-      "StarterKit\\": "src/"
+      "": "src/"
     }
   },
   "authors": [

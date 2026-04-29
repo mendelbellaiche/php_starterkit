@@ -8,7 +8,7 @@ const DB_PASS = '<VALUE>';
 
 
 // Dans une classe de config ou en haut de ton fichier
-const CONTROLLER_NAMESPACE = "\\StarterKit\\Controllers\\";
+const CONTROLLER_NAMESPACE = "\\Controllers\\";
 
 // Autres paramètres utiles
 const SITE_URL = '<VALUE>';

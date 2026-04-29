@@ -1,8 +1,8 @@
 <?php
 
-namespace StarterKit\Models;
+namespace Models;
 
-use StarterKit\Core\Database;
+use Core\Database;
 
 class User
 {

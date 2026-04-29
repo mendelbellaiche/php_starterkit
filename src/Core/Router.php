@@ -1,9 +1,9 @@
 <?php
 
-namespace StarterKit\Core;
+namespace Core;
 
 // On importe ta classe d'attribut et on lui donne un surnom
-use StarterKit\Core\Attributes\Route as RouteAttribute;
+use Core\Attributes\Route as RouteAttribute;
 use ReflectionClass;
 
 class Router
@@ -24,10 +24,6 @@ class Router
 
                 foreach ($attributes as $attribute) {
                     $routeAttr = $attribute->newInstance();
-
-                    // echo "<pre>";
-                    // print_r($routeAttr);
-                    //  echo "</pre>";
 
                     // On enregistre la route automatiquement
                     $this->routes[$routeAttr->method][] = new Route(

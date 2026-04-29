@@ -25,7 +25,7 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
     cd php_starterkit
     ```
 
-2.  **Installer les dépendances**
+2.  **Installer les dépendances (avec Composer)**
     ```bash
     composer install
     ```
@@ -81,7 +81,43 @@ Ensuite, changez les droits du projets web:
 sudo chown -R www-data:www-data /path/to/site
 ```
 
+Ensuite, il faut modifier la configuration d'apache2. Exemple:
+
+```
+sudo nano /etc/apache2/sites-available/000-default.conf
+```
+
+Contenu:
+```
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/mysite/public
+
+    <Directory /var/www/mysite/public>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+Il faut activer le **mod_rewrite**:
+
+```
+sudo a2enmod rewrite
+```
+
+et relancer apache2:
+
+```
+sudo systemctl restart apache2
+```
+
 Enfin, changer les credentials dans configs.php
+
 
 ## 🤝 Contribution
 

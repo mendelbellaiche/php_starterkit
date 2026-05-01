@@ -10,7 +10,6 @@ class HomeController extends AbstractController
     /**
      * Affiche la page d'accueil
      */
-    // #[Route('/', method: 'GET', namespace: '\\StarterKit\\Controllers\\')]
     #[Route('/', method: 'GET')]
     public function index()
     {

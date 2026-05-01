@@ -1,10 +1,10 @@
 <?php
 
 // Configuration de la base de données
-const DB_HOST = '<VALUE>';
-const DB_NAME = '<VALUE>';
-const DB_USER = '<VALUE>';
-const DB_PASS = '<VALUE>';
+const DB_HOST = 'localhost';
+const DB_NAME = 'starterkit';
+const DB_USER = 'root';
+const DB_PASS = 'password';
 
 
 // Dans une classe de config ou en haut de ton fichier

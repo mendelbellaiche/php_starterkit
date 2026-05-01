@@ -37,7 +37,23 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
     ```
 
 4.  **Configuration**
-    Configurez vos accès à la base de données dans le fichier `config.php`.
+    Configurez les variables d'environnement nécessaires.
+
+    **En développement (Ubuntu, via `~/.bashrc`)**
+    ```bash
+    export APP_ENV=dev
+    export APP_DEBUG=1
+    export SITE_URL=http://localhost
+    export DB_HOST=127.0.0.1
+    export DB_NAME=starterkit
+    export DB_USER=mendel
+    export DB_PASS='mendelpassword1'
+    ```
+
+    Rechargez ensuite votre shell:
+    ```bash
+    source ~/.bashrc
+    ```
 
 5.  **Lancer le projet**
     Vous pouvez utiliser le serveur interne de PHP :
@@ -60,7 +76,7 @@ Un squelette d'application PHP moderne, léger et structuré, utilisant Twig pou
 
 ## Déploiement
 
-Il faut d'abord installer PHP, MySQL et créer un user MySQL:
+Il faut d'abord installer PHP, MySQL et créer un utilisateur MySQL:
 
 ```
 cd /path/to/project/scripts
@@ -68,7 +84,7 @@ cd /path/to/project/scripts
 ./create_mysql_user.sh 
 ```
 
-Il faut installer composer et le lancer:
+Il faut installer Composer et le lancer:
 
 ```
 apt install composer
@@ -81,13 +97,13 @@ Déplacer ensuite le projet:
 mv php_starterkit /path/to/site
 ```
 
-Ensuite, changez les droits du projets web:
+Ensuite, changez les droits du projet web:
 
 ```
 sudo chown -R www-data:www-data /path/to/site
 ```
 
-Ensuite, il faut modifier la configuration d'apache2. Exemple:
+Ensuite, il faut modifier la configuration d'Apache2. Exemple:
 
 ```
 sudo nano /etc/apache2/sites-available/000-default.conf
@@ -98,6 +114,14 @@ Contenu:
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/mysite/public
+
+    SetEnv APP_ENV "prod"
+    SetEnv APP_DEBUG "0"
+    SetEnv SITE_URL "https://monsite.com"
+    SetEnv DB_HOST "127.0.0.1"
+    SetEnv DB_NAME "dbname"
+    SetEnv DB_USER "user"
+    SetEnv DB_PASS "password"
 
     <Directory /var/www/mysite/public>
         Options Indexes FollowSymLinks
@@ -116,13 +140,21 @@ Il faut activer le **mod_rewrite**:
 sudo a2enmod rewrite
 ```
 
-et relancer apache2:
+et relancer Apache2:
 
 ```
 sudo systemctl restart apache2
 ```
 
-Enfin, changer les credentials dans configs.php
+Enfin, vérifier vos valeurs de variables d'environnement selon l'environnement cible.
+
+## 🔒 Sécurité
+
+- Ne jamais utiliser de mot de passe faible en production (`DB_PASS` doit être long, unique et aléatoire).
+- Ne jamais versionner de secrets dans Git (mot de passe DB, tokens, clés API).
+- En production, toujours garder `APP_DEBUG=0`.
+- En production, `SITE_URL` doit etre en `https`.
+- En cas de fuite suspectée (repo, logs, sauvegarde), faire une rotation immédiate des credentials.
 
 
 ## 🤝 Contribution

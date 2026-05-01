@@ -82,13 +82,29 @@ class Logger
             $contextJson = '{"context":"encoding_error"}';
         }
 
-        $formattedMessage = "[$timestamp] | " . strtoupper($level) . " | request_id=$requestId | $message";
+        $ip = self::resolveClientIp();
+        $formattedMessage = "[$timestamp] | " . strtoupper($level) . " | request_id=$requestId | ip=$ip | $message";
         if ($contextJson !== '') {
             $formattedMessage .= " | context=$contextJson";
         }
         $formattedMessage .= PHP_EOL;
 
         file_put_contents($logger->logFile, $formattedMessage, FILE_APPEND);
+    }
+
+    private static function resolveClientIp(): string
+    {
+        foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'] as $key) {
+            if (!empty($_SERVER[$key])) {
+                // X-Forwarded-For peut contenir plusieurs IPs séparées par des virgules
+                $ip = trim(explode(',', $_SERVER[$key])[0]);
+                if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                    return $ip;
+                }
+            }
+        }
+
+        return 'unknown';
     }
 
     private static function resolveRequestId(): string

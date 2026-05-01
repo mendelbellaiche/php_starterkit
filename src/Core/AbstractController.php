@@ -16,6 +16,15 @@ abstract class AbstractController
             session_start();
         }
 
+        // Logger::getInstance()->log('Controller instantiated: ' . static::class);
+
+        $requestUri = $_SERVER["REQUEST_URI"] ?? '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"] ?? '';
+
+        Logger::getInstance()->info("Request: $requestMethod $requestUri | Controller: " . static::class);
+
+
+
         // 2. Initialiser Twig
         $loader = new FilesystemLoader(__DIR__ . '/../Views');
         $this->twig = new Environment($loader, [

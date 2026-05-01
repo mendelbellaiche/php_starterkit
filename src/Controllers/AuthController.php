@@ -132,18 +132,6 @@ class AuthController extends AbstractController
             return;
         }
 
-        $hasMinLength = strlen($password) >= 12;
-        $hasUppercase = (bool) preg_match('/[A-Z]/', $password);
-        $hasLowercase = (bool) preg_match('/[a-z]/', $password);
-        $hasDigit = (bool) preg_match('/\d/', $password);
-        $hasSpecial = (bool) preg_match('/[^a-zA-Z\d]/', $password);
-
-        if (!$hasMinLength || !$hasUppercase || !$hasLowercase || !$hasDigit || !$hasSpecial) {
-            $this->addFlash('error', 'Le mot de passe doit contenir au moins 12 caracteres, avec majuscule, minuscule, chiffre et caractere special.');
-            header('Location: /register');
-            return;
-        }
-
         if ($password !== $passwordConfirm) {
             $this->addFlash('error', 'Erreur : Les mots de passe ne correspondent pas.');
             header('Location: /register');
@@ -164,7 +152,7 @@ class AuthController extends AbstractController
                 ->setEmail($email)
                 ->setPassword($password);
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Format d\'email invalide.');
+            $this->addFlash('error', $e->getMessage());
             header('Location: /register');
             return;
         }

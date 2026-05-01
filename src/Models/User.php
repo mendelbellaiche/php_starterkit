@@ -6,6 +6,8 @@ use Core\Database;
 
 class User
 {
+    private const PASSWORD_MIN_LENGTH = 12;
+
     private ?int $id = null;
     private string $name;
     private string $email;
@@ -59,6 +61,7 @@ class User
     {
         // On hache le mot de passe seulement s'il ne l'est pas déjà (utile pour le fetchObject)
         if ($shouldHash) {
+            self::validatePasswordComplexity($plainPassword);
             $this->password = password_hash($plainPassword, PASSWORD_BCRYPT);
         } else {
             $this->password = $plainPassword;
@@ -135,13 +138,26 @@ class User
 
         // Si un nouveau mot de passe est fourni, on le hache
         if (!empty($data['password'])) {
-            $password = password_hash($data['password'], PASSWORD_BCRYPT);
+            $this->setPassword((string) $data['password']);
             $stmt = $db->prepare("UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?");
-            return $stmt->execute([$data['name'], $data['email'], $password, $this->id]);
+            return $stmt->execute([$data['name'], $data['email'], $this->password, $this->id]);
         }
 
         // Sinon, on met à jour uniquement le nom et l'email
         $stmt = $db->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
         return $stmt->execute([$data['name'], $data['email'], $this->id]);
+    }
+
+    private static function validatePasswordComplexity(string $password): void
+    {
+        $hasMinLength = strlen($password) >= self::PASSWORD_MIN_LENGTH;
+        $hasUppercase = (bool) preg_match('/[A-Z]/', $password);
+        $hasLowercase = (bool) preg_match('/[a-z]/', $password);
+        $hasDigit = (bool) preg_match('/\d/', $password);
+        $hasSpecial = (bool) preg_match('/[^a-zA-Z\d]/', $password);
+
+        if (!$hasMinLength || !$hasUppercase || !$hasLowercase || !$hasDigit || !$hasSpecial) {
+            throw new \Exception('Le mot de passe doit contenir au moins 12 caracteres, avec majuscule, minuscule, chiffre et caractere special.');
+        }
     }
 }

@@ -74,11 +74,8 @@ class AuthController extends AbstractController
         if ($user && password_verify($password, $user->getPassword())) {
 
             $throttle->clear($email, $ip);
-            $throttle->clearIp($ip);
 
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            $this->ensureSessionStarted();
 
             // anti session fixation
             session_regenerate_id(true);
@@ -110,9 +107,6 @@ class AuthController extends AbstractController
         $this->render('auth/register');
     }
 
-    /**
-     * @throws \Exception
-     */
     #[Route('/register', method: 'POST')]
     public function register()
     {
@@ -138,6 +132,18 @@ class AuthController extends AbstractController
             return;
         }
 
+        $hasMinLength = strlen($password) >= 12;
+        $hasUppercase = (bool) preg_match('/[A-Z]/', $password);
+        $hasLowercase = (bool) preg_match('/[a-z]/', $password);
+        $hasDigit = (bool) preg_match('/\d/', $password);
+        $hasSpecial = (bool) preg_match('/[^a-zA-Z\d]/', $password);
+
+        if (!$hasMinLength || !$hasUppercase || !$hasLowercase || !$hasDigit || !$hasSpecial) {
+            $this->addFlash('error', 'Le mot de passe doit contenir au moins 12 caracteres, avec majuscule, minuscule, chiffre et caractere special.');
+            header('Location: /register');
+            return;
+        }
+
         if ($password !== $passwordConfirm) {
             $this->addFlash('error', 'Erreur : Les mots de passe ne correspondent pas.');
             header('Location: /register');
@@ -153,15 +159,19 @@ class AuthController extends AbstractController
 
         // 4. Création de l'instance de l'entité User
         $user = new User();
-        $user->setName($name)
-            ->setEmail($email)
-            ->setPassword($password);
+        try {
+            $user->setName($name)
+                ->setEmail($email)
+                ->setPassword($password);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Format d\'email invalide.');
+            header('Location: /register');
+            return;
+        }
 
         // 5. Sauvegarde en base de données
         if ($user->save()) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            $this->ensureSessionStarted();
 
             session_regenerate_id(true);
 
@@ -184,9 +194,7 @@ class AuthController extends AbstractController
             exit;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->ensureSessionStarted();
 
         $_SESSION = [];
 

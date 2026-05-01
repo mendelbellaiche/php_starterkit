@@ -11,10 +11,8 @@ abstract class AbstractController
 
     public function __construct()
     {
-        // 1. Démarrer la session si elle n'existe pas
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        // 1. Démarrer la session avec une configuration de sécurité explicite
+        $this->ensureSessionStarted();
 
         // Logger::getInstance()->log('Controller instantiated: ' . static::class);
 
@@ -59,6 +57,34 @@ abstract class AbstractController
     {
         // Twig s'occupe de tout : extract, chargement, affichage
         echo $this->twig->render($view . '.twig', $data);
+    }
+
+    /**
+     * Démarre la session avec des flags de sécurité explicites.
+     */
+    protected function ensureSessionStarted(): void
+    {
+        if (session_status() !== PHP_SESSION_NONE) {
+            return;
+        }
+
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['SERVER_PORT'] ?? null) === '443');
+
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.cookie_httponly', '1');
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        session_start();
     }
 
     /**

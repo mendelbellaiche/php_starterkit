@@ -6,6 +6,8 @@ class Logger
 {
     private static ?self $instance = null;
     private string $logFile;
+    private int $maxFileSize;
+    private int $maxFiles;
     private const SENSITIVE_KEYS = [
         'password',
         'passwd',
@@ -19,9 +21,11 @@ class Logger
         'session',
     ];
 
-    private function __construct()
+    private function __construct(int $maxFileSizeMb = 5, int $maxFiles = 10)
     {
         $this->logFile = __DIR__ . '/../../logs/app.log';
+        $this->maxFileSize = $maxFileSizeMb * 1024 * 1024;
+        $this->maxFiles = $maxFiles;
 
         $logDir = dirname($this->logFile);
         if (!is_dir($logDir)) {
@@ -90,6 +94,33 @@ class Logger
         $formattedMessage .= PHP_EOL;
 
         file_put_contents($logger->logFile, $formattedMessage, FILE_APPEND);
+        $logger->rotate();
+    }
+
+    private function rotate(): void
+    {
+        if (!file_exists($this->logFile)) {
+            return;
+        }
+
+        if (filesize($this->logFile) < $this->maxFileSize) {
+            return;
+        }
+
+        $logDir  = dirname($this->logFile);
+        $base    = basename($this->logFile, '.log');
+        $rotated = $logDir . '/' . $base . '_' . date('Y-m-d_His') . '.log';
+
+        rename($this->logFile, $rotated);
+
+        // Supprime les anciens fichiers si le nombre max est dépassé
+        $pattern = $logDir . '/' . $base . '_*.log';
+        $files   = glob($pattern) ?: [];
+        usort($files, fn($a, $b) => filemtime($a) <=> filemtime($b));
+
+        while (count($files) > $this->maxFiles) {
+            unlink(array_shift($files));
+        }
     }
 
     private static function resolveClientIp(): string
